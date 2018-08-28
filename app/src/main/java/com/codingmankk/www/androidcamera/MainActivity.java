@@ -27,18 +27,24 @@ import butterknife.OnClick;
 
 /**
  * @author ozTaking
+ *
+ * 博客参考地址：https://blog.csdn.net/harvic880925/article/details/43163175
  */
 public class MainActivity extends AppCompatActivity {
 
     private static final int RESUTL_CAMERA_ONLY = 100;
+    private static final int RESUTL_CAMERA_CROP = 301;
     private Uri mImageUri;
 
     @BindView(R.id.Btn_Capture)
     Button mBtnCapture;
 
+    @BindView(R.id.Btn_CaptureAndCrop)
+    Button mBtnCaptureAndCrop;
+
+
     @BindView(R.id.IV_ImageView)
     ImageView mIV;
-    private Object SDCardPath;
 
 
     @Override
@@ -51,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
          */
         ButterKnife.bind(this);
         initData();
+
     }
 
     private void initData() {
@@ -61,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * 点击之后启动相机
+     * [1]点击之后启动相机
      */
     @OnClick({R.id.Btn_Capture})
     public void takeCameraOnly() {
@@ -74,6 +81,26 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(intent, RESUTL_CAMERA_ONLY);
     }
 
+    /**
+     * [2] 启动相机并剪裁
+     */
+    @OnClick(R.id.Btn_CaptureAndCrop)
+    public void takeCameraAndCrop(){
+        Intent intent =null;
+        intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        intent.putExtra("crop",true);
+        intent.putExtra("aspectX",1);
+        intent.putExtra("aspectY",1);
+        intent.putExtra("outputX",1000);
+        intent.putExtra("outputY",1000);
+        intent.putExtra("scale",true);
+        intent.putExtra("return-data",false);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT,mImageUri);
+        intent.putExtra("outputFormat",Bitmap.CompressFormat.JPEG.toString());
+        intent.putExtra("noFaceDetection",true);
+        startActivityForResult(intent,RESUTL_CAMERA_CROP);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -83,22 +110,29 @@ public class MainActivity extends AppCompatActivity {
 
         switch (requestCode) {
             case RESUTL_CAMERA_ONLY:
-                try {
-                    Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver()
-                            .openInputStream(mImageUri));
-                    Logger.i(bitmap+"");
-                    mIV.setImageBitmap(bitmap);
-
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-
-                }
+                decodeBitmapSetImageView();
+                break;
+            case RESUTL_CAMERA_CROP:
+                mIV.setImageBitmap(null);
+                decodeBitmapSetImageView();
                 break;
             default:
                 break;
         }
 
+    }
 
+    private void decodeBitmapSetImageView() {
+        try {
+            Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver()
+                    .openInputStream(mImageUri));
+            Logger.i(bitmap+"");
+            mIV.setImageBitmap(bitmap);
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+
+        }
     }
 
     public String getSDCardPath() {

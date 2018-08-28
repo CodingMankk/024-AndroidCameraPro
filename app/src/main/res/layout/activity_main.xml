@@ -8,6 +8,14 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
+    <ImageView
+        android:scaleType="centerInside"
+        android:src="@mipmap/ic_launcher_round"
+        android:layout_margin="3dp"
+        android:id="@+id/IV_ImageView"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"/>
+
     <Button
         android:text="相机拍照"
         android:textSize="15sp"
@@ -15,13 +23,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
-    <ImageView
-        android:scaleType="centerInside"
-        android:src="@mipmap/ic_launcher_round"
-        android:layout_margin="3dp"
-        android:id="@+id/IV_ImageView"
+    <Button
+        android:text="相机拍照并剪裁"
+        android:textSize="15sp"
+        android:id="@+id/Btn_CaptureAndCrop"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
+
+
+
 
 
 
