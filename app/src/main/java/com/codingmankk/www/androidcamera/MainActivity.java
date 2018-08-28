@@ -19,6 +19,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import butterknife.BindView;
@@ -27,14 +28,22 @@ import butterknife.OnClick;
 
 /**
  * @author ozTaking
- *
+ * <p>
  * 博客参考地址：https://blog.csdn.net/harvic880925/article/details/43163175
  */
 public class MainActivity extends AppCompatActivity {
 
     private static final int RESUTL_CAMERA_ONLY = 100;
     private static final int RESUTL_CAMERA_CROP = 301;
+    /**
+     * 存放拍照结果
+     */
     private Uri mImageUri;
+
+    /**
+     * 存放剪裁结果
+     */
+    private Uri mImageCropUri;
 
     @BindView(R.id.Btn_Capture)
     Button mBtnCapture;
@@ -65,6 +74,9 @@ public class MainActivity extends AppCompatActivity {
         File file = new File(path + "/temp.jpg");
         mImageUri = Uri.fromFile(file);
 
+        File cropFile = new File(getSDCardPath() + "temp_crop.jpg");
+        mImageCropUri = Uri.fromFile(cropFile);
+
     }
 
     /**
@@ -76,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         intent.putExtra("return-data", false);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
-        intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG);
+        intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
         intent.putExtra("noFaceDetection", true);
         startActivityForResult(intent, RESUTL_CAMERA_ONLY);
     }
@@ -84,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * [2] 启动相机并剪裁
      */
-    @OnClick(R.id.Btn_CaptureAndCrop)
+  /*  @OnClick(R.id.Btn_CaptureAndCrop)
     public void takeCameraAndCrop(){
         Intent intent =null;
         intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -99,8 +111,7 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra("outputFormat",Bitmap.CompressFormat.JPEG.toString());
         intent.putExtra("noFaceDetection",true);
         startActivityForResult(intent,RESUTL_CAMERA_CROP);
-    }
-
+    }*/
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -110,23 +121,61 @@ public class MainActivity extends AppCompatActivity {
 
         switch (requestCode) {
             case RESUTL_CAMERA_ONLY:
-                decodeBitmapSetImageView();
+                //                decodeBitmapSetImageView();
+                cropImg(mImageUri);
                 break;
             case RESUTL_CAMERA_CROP:
-                mIV.setImageBitmap(null);
-                decodeBitmapSetImageView();
+                Bundle extras = data.getExtras();
+
+                if (extras != null) {
+
+                    Bitmap bitmap = null;
+                    try {
+                        InputStream in;
+                        in = getContentResolver().openInputStream
+                                (mImageCropUri);
+                        bitmap = BitmapFactory.decodeStream(in);
+                        Logger.i(bitmap + "");
+                        mIV.setImageBitmap(bitmap);
+                        in.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } finally {
+
+                    }
+
+                }
                 break;
             default:
                 break;
+
         }
 
     }
 
-    private void decodeBitmapSetImageView() {
+    private void cropImg(Uri imageUri) {
+        Intent intent = null;
+        intent = new Intent("com.android.camera.action.CROP");
+        intent.setDataAndType(imageUri, "image/*");
+        intent.putExtra("crop", true);
+        intent.putExtra("aspectX", 1);
+        intent.putExtra("aspectY", 1);
+        intent.putExtra("outputX", 700);
+        intent.putExtra("outputY", 700);
+        intent.putExtra("scale", true);
+        intent.putExtra("return-data", false);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageCropUri);
+        intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
+        intent.putExtra("noFaceDetection", true);
+        startActivityForResult(intent, RESUTL_CAMERA_CROP);
+
+    }
+
+    private void decodeBitmapSetImageView(Uri mImageUri) {
         try {
             Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver()
                     .openInputStream(mImageUri));
-            Logger.i(bitmap+"");
+            Logger.i(bitmap + "");
             mIV.setImageBitmap(bitmap);
 
         } catch (FileNotFoundException e) {
