@@ -42,10 +42,13 @@ import butterknife.OnClick;
  */
 public class MainActivity extends AppCompatActivity {
 
-    private static final int RESUTL_CAMERA_ONLY = 100;
-    private static final int RESULT_CAMERA_CROP_PATH_RESULT = 301;
-    private static final int RESULT_ALBUM_ONLY_THROUGH_RESULT = 302; //相册选取照片-缩略图
+    private static final int RESUTL_CAMERA_ONLY = 100; //[1-1] 拍照剪裁照片
+    private static final int RESULT_CAMERA_CROP_PATH_RESULT = 101; //[1-2] 拍照剪裁照片
+
+    private static final int RESULT_ALBUM_ONLY_THROUGH_DATA = 200; //相册选取照片-缩略图
+
     private static final int RESULT_ALBUM_CORP_URI_RESULT = 303; //相册选取照片-剪裁-缩略图
+
     private static final int RESULT_ALBUM_CORP_PATH_RESULT = 401; //相册选取照片-剪裁-缩略图
     private static final int RESULT_ALBUM_CORP_PATH = 400; //相册选取照片-剪裁-缩略图
     /**
@@ -58,12 +61,19 @@ public class MainActivity extends AppCompatActivity {
      */
     private Uri mImageCropUri;
 
+    //[1] 拍照并剪裁图片
     @BindView(R.id.Btn_Capture)
     Button mBtnCapture;
 
+    //[2]相册选取图片-缩略图
+    @BindView(R.id.Btn_SelectImageResSmall)
+    Button mBtnSelectImageResSmall;
+
+    //[3]相册选取图片-剪裁-缩略图-uri
     @BindView(R.id.Btn_Select_Album_Crop_Uri)
     Button mBtnSelect_Album_Crop_Uri;
 
+    //[4]相册选取图片-剪裁-缩略图-path
     @BindView(R.id.Btn_Select_Album_Crop_Path)
     Button mSelect_Album_Crop_Path;
 
@@ -124,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
     public void mBtnSelectImageResSmall() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT, null);
         intent.setType("image/*");
-        startActivityForResult(intent, RESULT_ALBUM_ONLY_THROUGH_RESULT);
+        startActivityForResult(intent, RESULT_ALBUM_ONLY_THROUGH_DATA);
     }
 
     /**
@@ -169,11 +179,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         switch (requestCode) {
-            case RESUTL_CAMERA_ONLY:
+            case RESUTL_CAMERA_ONLY: //[1-1] 拍照剪裁照片
                 // decodeBitmapSetImageView();
                 cropImg(mImageUri);
                 break;
-            case RESULT_CAMERA_CROP_PATH_RESULT:
+            case RESULT_CAMERA_CROP_PATH_RESULT://[1-2] 拍照剪裁照片
                 Bundle extras = data.getExtras();
                 if (extras != null) {
                     Bitmap bitmap = null;
@@ -190,9 +200,10 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 break;
-            case RESULT_ALBUM_ONLY_THROUGH_RESULT: //相册选取照片-缩略图
+            case RESULT_ALBUM_ONLY_THROUGH_DATA: //[2]相册选取照片-缩略图
                 try {
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData());
+
                     if (bitmap != null) {
                         Bitmap bitmap1 = setScaleBitmap(bitmap, 2);
                         mIV.setImageBitmap(bitmap1);
@@ -202,28 +213,33 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
 
-            case RESULT_ALBUM_CORP_URI_RESULT:
+            case RESULT_ALBUM_CORP_URI_RESULT://[3-1]
                 try {
-                    Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(mImageUri));
+//                    Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(mImageUri));
+                    String path = parsePicPath(MainActivity.this, data.getData());
+                    File file = new File(path);
+                    Uri uri = Uri.fromFile(file);
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                     if (bitmap != null) {
                         Bitmap newBitmap = setScaleBitmap(bitmap, 2);
                         mIV.setImageBitmap(newBitmap);
                     }
 
-                } catch (FileNotFoundException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 break;
 
-            case RESULT_ALBUM_CORP_PATH:
+            case RESULT_ALBUM_CORP_PATH: //[4-1]
                 String path = parsePicPath(MainActivity.this, data.getData());
                 File file = new File(path);
                 Uri uri = Uri.fromFile(file);
                 cropImgPath(uri);
                 break;
-            case RESULT_ALBUM_CORP_PATH_RESULT:
+            case RESULT_ALBUM_CORP_PATH_RESULT: //[4-2]
                 Bundle extra = data.getExtras();
-                if (extra != null){
+//                if (extra != null){
+                if (getTempFile() != null){
                     Bitmap bitmap = BitmapFactory.decodeFile(getTempFile().getAbsolutePath(), null);
                     if (bitmap != null){
                         Bitmap scaleBitmap = setScaleBitmap(bitmap, 2);
