@@ -14,7 +14,7 @@
         android:layout_margin="3dp"
         android:id="@+id/IV_ImageView"
         android:layout_width="match_parent"
-        android:layout_height="250dp"/>
+        android:layout_height="100dp"/>
 
     <Button
         android:text="相机拍照并剪裁"
@@ -30,8 +30,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
+    <Button
+        android:text="相册选取图片-剪裁-缩略图-uri"
+        android:textSize="15sp"
+        android:id="@+id/Btn_Select_Album_Crop_Uri"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
 
+    <Button
+        android:text="相册选取图片-剪裁-缩略图-path"
+        android:textSize="15sp"
+        android:id="@+id/Btn_Select_Album_Crop_Path"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
 
 
