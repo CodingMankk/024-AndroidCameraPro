@@ -40,7 +40,7 @@ import butterknife.OnClick;
  * <p>
  * 博客参考地址：https://blog.csdn.net/harvic880925/article/details/43163175
  */
-public class MainActivity extends AppCompatActivity {
+public class CamerCaptureCropActivity extends AppCompatActivity {
 
     private static final int RESUTL_CAMERA_ONLY = 100; //[1-1] 拍照剪裁照片
     private static final int RESULT_CAMERA_CROP_PATH_RESULT = 101; //[1-2] 拍照剪裁照片
@@ -216,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
             case RESULT_ALBUM_CORP_URI_RESULT://[3-1]
                 try {
 //                    Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(mImageUri));
-                    String path = parsePicPath(MainActivity.this, data.getData());
+                    String path = parsePicPath(CamerCaptureCropActivity.this, data.getData());
                     File file = new File(path);
                     Uri uri = Uri.fromFile(file);
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
@@ -231,7 +231,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case RESULT_ALBUM_CORP_PATH: //[4-1]
-                String path = parsePicPath(MainActivity.this, data.getData());
+                String path = parsePicPath(CamerCaptureCropActivity.this, data.getData());
                 File file = new File(path);
                 Uri uri = Uri.fromFile(file);
                 cropImgPath(uri);

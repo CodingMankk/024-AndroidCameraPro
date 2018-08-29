@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".CameraRecordVideoActivity">
+
+   <Button
+       android:id="@+id/id_Btn_camera_record_video"
+       android:text="使用系统Camera录制视频"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:textSize="15sp"/>
+
+    <Button
+        android:id="@+id/id_Btn_custom_record_video"
+        android:text="自定义Camera录制视频"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"/>
+
+    <VideoView
+        android:layout_margin="5dp"
+        android:id="@+id/id_videoView_record_system"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"/>
+
+    <Button
+        android:id="@+id/Btn_RestartVideo"
+        android:text="重新播放视频"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        />
+
+</LinearLayout>
