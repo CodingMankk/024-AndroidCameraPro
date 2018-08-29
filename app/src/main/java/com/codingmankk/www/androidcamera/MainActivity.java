@@ -34,7 +34,7 @@ import butterknife.OnClick;
 public class MainActivity extends AppCompatActivity {
 
     private static final int RESUTL_CAMERA_ONLY = 100;
-    private static final int RESUTL_CAMERA_CROP = 301;
+    private static final int RESULT_CAMERA_CROP_PATH_RESULT = 301;
     /**
      * 存放拍照结果
      */
@@ -70,14 +70,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initData() {
-        String path = getSDCardPath();
+//        String path = getSDCardPath();
+        String path = getAbsPath();
+
         File file = new File(path + "/temp.jpg");
         mImageUri = Uri.fromFile(file);
 
-        File cropFile = new File(getSDCardPath() + "temp_crop.jpg");
+        File cropFile = new File(getSDCardPath() + "/temp_crop.jpg");
         mImageCropUri = Uri.fromFile(cropFile);
 
     }
+
+    private String getAbsPath(){
+        return Environment.getExternalStorageDirectory().getAbsolutePath();
+    }
+
 
     /**
      * [1]点击之后启动相机
@@ -96,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * [2] 启动相机并剪裁
      */
-  /*  @OnClick(R.id.Btn_CaptureAndCrop)
+    @OnClick(R.id.Btn_CaptureAndCrop)
     public void takeCameraAndCrop(){
         Intent intent =null;
         intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -110,8 +117,8 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra(MediaStore.EXTRA_OUTPUT,mImageUri);
         intent.putExtra("outputFormat",Bitmap.CompressFormat.JPEG.toString());
         intent.putExtra("noFaceDetection",true);
-        startActivityForResult(intent,RESUTL_CAMERA_CROP);
-    }*/
+        startActivityForResult(intent,RESULT_CAMERA_CROP_PATH_RESULT);
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -124,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
                 //                decodeBitmapSetImageView();
                 cropImg(mImageUri);
                 break;
-            case RESUTL_CAMERA_CROP:
+            case RESULT_CAMERA_CROP_PATH_RESULT:
                 Bundle extras = data.getExtras();
 
                 if (extras != null) {
@@ -167,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageCropUri);
         intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
         intent.putExtra("noFaceDetection", true);
-        startActivityForResult(intent, RESUTL_CAMERA_CROP);
+        startActivityForResult(intent, RESULT_CAMERA_CROP_PATH_RESULT);
 
     }
 
