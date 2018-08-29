@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -19,6 +20,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
@@ -35,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int RESUTL_CAMERA_ONLY = 100;
     private static final int RESULT_CAMERA_CROP_PATH_RESULT = 301;
+    private static final int RESULT_ALBUM_ONLY_THROUGH_RESULT = 302; //相册选取照片-缩略图
     /**
      * 存放拍照结果
      */
@@ -48,12 +51,17 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.Btn_Capture)
     Button mBtnCapture;
 
-    @BindView(R.id.Btn_CaptureAndCrop)
-    Button mBtnCaptureAndCrop;
+    @BindView(R.id.Btn_SelectImageResSmall)
+    Button mBtnSelectImageResSmall;
+
+
 
 
     @BindView(R.id.IV_ImageView)
     ImageView mIV;
+
+
+
 
 
     @Override
@@ -101,24 +109,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * [2] 启动相机并剪裁
+     * [2]相册选取照片-缩略图
      */
-    @OnClick(R.id.Btn_CaptureAndCrop)
-    public void takeCameraAndCrop(){
-        Intent intent =null;
-        intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        intent.putExtra("crop",true);
-        intent.putExtra("aspectX",1);
-        intent.putExtra("aspectY",1);
-        intent.putExtra("outputX",1000);
-        intent.putExtra("outputY",1000);
-        intent.putExtra("scale",true);
-        intent.putExtra("return-data",false);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT,mImageUri);
-        intent.putExtra("outputFormat",Bitmap.CompressFormat.JPEG.toString());
-        intent.putExtra("noFaceDetection",true);
-        startActivityForResult(intent,RESULT_CAMERA_CROP_PATH_RESULT);
+    @OnClick(R.id.Btn_SelectImageResSmall)
+    public void mBtnSelectImageResSmall(){
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT, null);
+        intent.setType("image/*");
+        startActivityForResult(intent,RESULT_ALBUM_ONLY_THROUGH_RESULT);
     }
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -128,14 +128,12 @@ public class MainActivity extends AppCompatActivity {
 
         switch (requestCode) {
             case RESUTL_CAMERA_ONLY:
-                //                decodeBitmapSetImageView();
+                // decodeBitmapSetImageView();
                 cropImg(mImageUri);
                 break;
             case RESULT_CAMERA_CROP_PATH_RESULT:
                 Bundle extras = data.getExtras();
-
                 if (extras != null) {
-
                     Bitmap bitmap = null;
                     try {
                         InputStream in;
@@ -147,10 +145,18 @@ public class MainActivity extends AppCompatActivity {
                         in.close();
                     } catch (Exception e) {
                         e.printStackTrace();
-                    } finally {
-
                     }
-
+                }
+                break;
+            case RESULT_ALBUM_ONLY_THROUGH_RESULT: //相册选取照片-缩略图
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData());
+                    if (bitmap != null){
+                        Bitmap bitmap1 = setScaleBitmap(bitmap,2);
+                        mIV.setImageBitmap(bitmap1);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
                 break;
             default:
@@ -158,6 +164,30 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
+    }
+
+    private Bitmap setScaleBitmap(Bitmap bitmap, int scale) {
+
+        if (bitmap != null){
+            int sourceWidth = bitmap.getWidth();
+            int sourceHeight = bitmap.getHeight();
+            Matrix matrix = new Matrix();
+            int cropWidth = sourceWidth/scale;
+            int cropHeight = sourceHeight/scale;
+
+            float scaleWidth = (float) cropWidth /sourceWidth;
+            float scaleHeight = (float) cropHeight /sourceHeight;
+
+            matrix.postScale(scaleWidth,scaleHeight);
+            Bitmap newBitmap = Bitmap.createBitmap(bitmap, 0, 0, sourceWidth, sourceHeight, matrix, true);
+            /**
+             * 释放原始图片占用的内存，防止out of memory异常发生
+             */
+            bitmap.recycle();
+            return newBitmap;
+
+        }
+        return null;
     }
 
     private void cropImg(Uri imageUri) {

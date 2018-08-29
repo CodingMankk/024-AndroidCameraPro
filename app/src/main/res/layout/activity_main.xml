@@ -17,18 +17,20 @@
         android:layout_height="250dp"/>
 
     <Button
-        android:text="相机拍照"
+        android:text="相机拍照并剪裁"
         android:textSize="15sp"
         android:id="@+id/Btn_Capture"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
     <Button
-        android:text="相机拍照并剪裁"
+        android:text="相册选取图片-缩略图"
         android:textSize="15sp"
-        android:id="@+id/Btn_CaptureAndCrop"
+        android:id="@+id/Btn_SelectImageResSmall"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
+
+
 
 
 
