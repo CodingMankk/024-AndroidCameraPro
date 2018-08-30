@@ -26,6 +26,15 @@
             android:contentDescription="@string/begin"
             android:src="@drawable/recordvideo_start"/>
 
+        <ImageView
+            android:id="@+id/IV_Record_Pause"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_centerInParent="true"
+            android:contentDescription="@string/pause"
+            android:src="@drawable/control_pause"
+            android:visibility="gone"/>
+
         <Chronometer
             android:id="@+id/chronometer_recordTime"
             android:layout_width="wrap_content"
