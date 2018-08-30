@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">CH1CameraRecordVideo</string>
+    <string name="begin">开始</string>
+    <string name="stop">暂停</string>
 </resources>

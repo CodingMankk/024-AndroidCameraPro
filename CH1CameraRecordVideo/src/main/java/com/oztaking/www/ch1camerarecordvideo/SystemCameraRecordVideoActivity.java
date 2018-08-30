@@ -21,9 +21,13 @@ import butterknife.OnClick;
 
 /**
  * @function:使用系统的Camera录制视频
+ *
+ * 参考文章地址：https://blog.csdn.net/android_technology/article/details/69388902
+ *
+ *@author  ozTaking
  */
 
-public class CameraRecordVideoActivity extends AppCompatActivity {
+public class SystemCameraRecordVideoActivity extends AppCompatActivity {
 
     private static final int RECORD_SYSTEM_VIDEO = 1;
 

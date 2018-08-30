@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".CameraRecordVideoActivity">
+    tools:context=".SystemCameraRecordVideoActivity">
 
    <Button
        android:id="@+id/id_Btn_camera_record_video"
