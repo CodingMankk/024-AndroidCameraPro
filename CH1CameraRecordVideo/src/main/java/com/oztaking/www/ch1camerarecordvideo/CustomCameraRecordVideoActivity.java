@@ -8,7 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.orhanobut.logger.Logger;
@@ -40,16 +40,16 @@ public class CustomCameraRecordVideoActivity extends Activity{
     /**
      * UI
      */
-    @BindView(R.id.Btn_Record_control)
-    Button mBtnRecordControl;
+    @BindView(R.id.IV_Record_control)
+    ImageView mIV;
 
-    @BindView(R.id.Btn_RestartVideo)
-    Button mBtnRestartVideo;
+//    @BindView(R.id.Btn_RestartVideo)
+//    Button mBtnRestartVideo;
 
     @BindView(R.id.id_record_surfaceView)
     SurfaceView mSurfaceView;
 
-    private SurfaceHolder mSurfaceHolder;
+    private SurfaceHolder mSurfaceViewHolder;
 
     /**
      * 标识
@@ -80,14 +80,13 @@ public class CustomCameraRecordVideoActivity extends Activity{
          */
         SurfaceViewConfigure();
 
-
     }
 
     /**
      * 配置surfaceView
      */
     private void SurfaceViewConfigure() {
-        SurfaceHolder mSurfaceViewHolder = mSurfaceView.getHolder();
+        mSurfaceViewHolder = mSurfaceView.getHolder();
         // 设置Surface不需要维护自己的缓冲区
         mSurfaceViewHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         //设置分辨率
@@ -102,19 +101,25 @@ public class CustomCameraRecordVideoActivity extends Activity{
 
         @Override
         public void surfaceCreated(SurfaceHolder holder) {
-
+            initCamera();
         }
 
         @Override
         public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+            if (mSurfaceViewHolder.getSurface() == null) {
+                return;
+            }
 
         }
 
         @Override
         public void surfaceDestroyed(SurfaceHolder holder) {
-
+            stopCamera();
         }
+
+
     };
+
 
     /**
      * 初始化Camera
@@ -126,13 +131,16 @@ public class CustomCameraRecordVideoActivity extends Activity{
         }
 
         //默认开启后置Camera
-        mCamera = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK);
+//        mCamera = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK);
+        mCamera = Camera.open();
         if (mCamera == null){
             Toast.makeText(this,"获取相机失败！",Toast.LENGTH_SHORT).show();
+            return;
         }
 
         try {
-            mCamera.setPreviewDisplay(mSurfaceHolder);
+            //相机与SurfaceHolder绑定
+            mCamera.setPreviewDisplay(mSurfaceViewHolder);
             //配置CameraParams
             setCameraParams();
             //启动相机预览
@@ -180,7 +188,8 @@ public class CustomCameraRecordVideoActivity extends Activity{
         }
     }
 
-    @OnClick(R.id.Btn_Record_control)
+
+    @OnClick(R.id.IV_Record_control)
     public void StartRecordVideo(){
         if (!isRecording){
             //Todo 开始录制视屏

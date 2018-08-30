@@ -19,12 +19,12 @@
 
         <!--BtnBegin/BtnComplete/BtnRecord-->
         <ImageView
-            android:id="@+id/Btn_Record_control"
+            android:id="@+id/IV_Record_control"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_centerInParent="true"
             android:contentDescription="@string/begin"
-            android:src="@mipmap/ic_launcher"/>
+            android:src="@drawable/recordvideo_start"/>
 
         <Chronometer
             android:id="@+id/chronometer_recordTime"

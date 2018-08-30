@@ -34,8 +34,12 @@ public class SystemCameraRecordVideoActivity extends AppCompatActivity {
     @BindView(R.id.id_Btn_camera_record_video)
     Button mBtnCameraRecordVideo;
 
-    @BindView(R.id.Btn_RestartVideo)
-    Button mBtnRestartVideo;
+
+
+    @BindView(R.id.id_Btn_custom_record_video)
+    Button mBtnCustomRecordVideo;
+
+
 
     @BindView(R.id.id_videoView_record_system)
     VideoView mVideoView;
@@ -66,10 +70,17 @@ public class SystemCameraRecordVideoActivity extends AppCompatActivity {
         startActivityForResult(intent,RECORD_SYSTEM_VIDEO);
     }
 
-    @OnClick(R.id.Btn_RestartVideo)
-    public void restartVideo(){
-        mVideoView.seekTo(0);
-        mVideoView.start();
+//    @OnClick(R.id.Btn_RestartVideo)
+//    public void restartVideo(){
+//        mVideoView.seekTo(0);
+//        mVideoView.start();
+//    }
+
+    @OnClick(R.id.id_Btn_custom_record_video)
+    public void startCustomCameraRecordVideoActivity(){
+        Intent intent = new Intent(SystemCameraRecordVideoActivity.this,
+                CustomCameraRecordVideoActivity.class);
+        startActivity(intent);
     }
 
     @Override
