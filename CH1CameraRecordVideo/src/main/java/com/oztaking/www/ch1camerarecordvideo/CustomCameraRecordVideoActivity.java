@@ -3,6 +3,7 @@ package com.oztaking.www.ch1camerarecordvideo;
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.hardware.Camera;
+import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
@@ -77,8 +78,6 @@ public class CustomCameraRecordVideoActivity extends Activity{
             }
         }
     };
-    private File mRecordFile1;
-
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -243,7 +242,53 @@ public class CustomCameraRecordVideoActivity extends Activity{
 
     }
 
+    /**
+     * 配置Record参数
+     */
     private void setConfigRecord() {
+        mMediaRecorder = new MediaRecorder();
+        mMediaRecorder.reset();
+        mMediaRecorder.setCamera(mCamera);
+        mMediaRecorder.setOnErrorListener(onErrorListener);
+
+        /**
+         * 使用surfaceView预览
+         */
+        mMediaRecorder.setPreviewDisplay(mSurfaceViewHolder.getSurface());
+
+        //1.设置采集声音
+        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        //2.设置采集图像
+        mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+        //3.设置视频、音频输出格式 MP4
+        mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
+        //4.设置音频编码格式
+        mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+        //5.设置图像编码格式
+        mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
+        //6.设置立体声
+        mMediaRecorder.setAudioChannels(2);
+        //7.设置最大录像时间 单位ms
+        mMediaRecorder.setMaxDuration(60*1000);
+        //8.设置最大录制的大小 单位字节
+        mMediaRecorder.setMaxFileSize(1024*1024);
+        //9.设置音频位深
+        mMediaRecorder.setAudioEncodingBitRate(44100);
+        //10.设置视频编码比特率：1M<VideoEncodingBitRate<2M
+        CamcorderProfile profile = CamcorderProfile.get(CamcorderProfile.QUALITY_480P);
+        if (profile.videoBitRate > 2*1024*1024){
+            mMediaRecorder.setVideoEncodingBitRate(2*1024*1024);
+        }else{
+            mMediaRecorder.setVideoEncodingBitRate(1024*1024);
+        }
+        //11.设置捕获的视频帧速率
+        mMediaRecorder.setVideoFrameRate(profile.videoFrameRate);
+        //12.设置选择角度，顺时针方向，默认是逆向90度。此处设置的是保存后的视频的角度
+        mMediaRecorder.setOrientationHint(90);
+        //13.设置录像的分辨率
+        mMediaRecorder.setVideoSize(352,288);
+        //14.设置输出文件
+        mMediaRecorder.setOutputFile(mRecordFile.getAbsolutePath());
 
     }
 
