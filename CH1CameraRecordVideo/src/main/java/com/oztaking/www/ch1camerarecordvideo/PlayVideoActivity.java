@@ -9,6 +9,7 @@ import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import com.orhanobut.logger.Logger;
 import com.oztaking.www.ch1camerarecordvideo.util.mMediaController;
 import com.oztaking.www.ch1camerarecordvideo.view.MyVideoView;
 
@@ -45,6 +46,7 @@ public class PlayVideoActivity extends AppCompatActivity implements MediaPlayer.
 
     @Override
     public void onPrepared(MediaPlayer mp) {
+        Logger.i("onPrepared");
         controller.setMediaPlayer(this);
         controller.setAnchorView((ViewGroup) findViewById(R.id.fl_videoView_parent));
         controller.show();

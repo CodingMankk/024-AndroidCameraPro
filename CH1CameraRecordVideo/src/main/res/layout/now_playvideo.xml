@@ -3,25 +3,27 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/fl_videoView_parent"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/background_material_dark">
-
+    android:layout_height="wrap_content">
 
     <!--<com.liuzhongjun.videorecorddemo.view.MyVideoView-->
         <!--android:id="@+id/videoView"-->
         <!--android:layout_width="match_parent"-->
         <!--android:layout_height="200dp"-->
         <!--android:layout_gravity="center">-->
-
     <!--</com.liuzhongjun.videorecorddemo.view.MyVideoView>  -->
 
     <com.oztaking.www.ch1camerarecordvideo.view.MyVideoView
         android:id="@+id/videoView"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_gravity="center">
-
+        android:layout_height="match_parent">
     </com.oztaking.www.ch1camerarecordvideo.view.MyVideoView>
+
+    <TextView
+        android:textSize="15sp"
+        android:textColor="#00ff00"
+        android:text="@string/app_name"
+        android:layout_width="match_parent"
+        android:layout_height="25dp"/>
 
 
 </FrameLayout>

@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.orhanobut.logger.Logger;
+import com.oztaking.www.ch1camerarecordvideo.util.VideoUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,6 +46,7 @@ public class CustomCameraRecordVideoActivity extends Activity{
     private File mRecordFile;
     private Camera mCamera;
     private MediaRecorder mMediaRecorder;
+    private String mSaveVideoPath = "";
 
     /**
      * UI
@@ -64,13 +66,6 @@ public class CustomCameraRecordVideoActivity extends Activity{
     private SurfaceHolder mSurfaceViewHolder;
 
     /**
-     * 标识
-     */
-    private boolean isPause; //是否暂停
-    private boolean isRecording; //是否正在录制
-    private long mRecordCurrentTime = 0;
-
-    /**
      * 录像机运行的状态机--三个标识
      */
     private int mRecordState;
@@ -87,7 +82,7 @@ public class CustomCameraRecordVideoActivity extends Activity{
             }
         }
     };
-    private String mCurrentVideoFilePath;
+//    private String mCurrentVideoFilePath;
     private long mPauseTime;
 
     @Override
@@ -100,6 +95,7 @@ public class CustomCameraRecordVideoActivity extends Activity{
          */
         SurfaceViewConfigure();
         Logger.init("CustomCameraRecordVideoActivity");
+        mIVPause.setEnabled(false);
 
     }
 
@@ -199,28 +195,15 @@ public class CustomCameraRecordVideoActivity extends Activity{
     }
 
     /**
-     * 释放摄像头资源
-     */
-    private void stopCamera() {
-        if (mCamera != null){
-            mCamera.setPreviewCallback(null);
-            mCamera.stopPreview();
-            mCamera.release();
-            mCamera = null;
-        }
-    }
-
-
-    /**
      * 视频录制
      */
     @OnClick(R.id.IV_Record_control)
-    public void StartRecordVideo(){
+    public void BeginRecordVideo(){
         if (mRecordState == CONSTANT_RECORD_STATE_INIT){
-            if (createRecordDir() == null){
+            if (!createRecordDir()){
                 return;
             }
-            mCurrentVideoFilePath = createRecordDir() + createRecordFileName();
+//            mCurrentVideoFilePath = createRecordDir() + createRecordFileName();
 
             //开始录制
             if (!startRecordVideo()){
@@ -238,6 +221,14 @@ public class CustomCameraRecordVideoActivity extends Activity{
 
             refreshControlUI();
 
+            //ToDo 视频合并
+            if ("".equals(mSaveVideoPath)){
+//                mSaveVideoPath = mCurrentVideoFilePath;
+                mSaveVideoPath = mRecordFile.toString();
+            }else {
+                mergeRecordVideoFile();
+            }
+
             mRecordState = CONSTANT_RECORD_STATE_INIT;
             /**
              * 跳转到播放页面,延时1s，如果有视频合成保证视频合成完成
@@ -249,23 +240,22 @@ public class CustomCameraRecordVideoActivity extends Activity{
                             CustomCameraRecordVideoActivity.this,
                             PlayVideoActivity.class);
                     Bundle bundle = new Bundle();
-                    bundle.putString("videoPath",mCurrentVideoFilePath);
+                    bundle.putString("videoPath",mSaveVideoPath);
+//                    Logger.i(mSaveVideoPath);
                     intent.putExtras(bundle);
-                    Logger.i("startActivity 前");
                     startActivity(intent);
-                    Logger.i("startActivity 后");
                     finish();
                 }
             },1000);
 
-            //ToDo 视频合并
+
         }else if (mRecordState == CONSTANT_RECORD_STATE_PAUSE){
             //代表视频暂停录制时，点击中心按钮
             Intent intent = new Intent(
                     CustomCameraRecordVideoActivity.this,
                     PlayVideoActivity.class);
             Bundle bundle = new Bundle();
-            bundle.putString("videoPath", mCurrentVideoFilePath);
+            bundle.putString("videoPath", mSaveVideoPath);
             intent.putExtras(bundle);
             startActivity(intent);
             finish();
@@ -293,15 +283,23 @@ public class CustomCameraRecordVideoActivity extends Activity{
             refreshPauseUI();
 
             //TODO 是否进行视频合并
+            //判断是否进行视频合并
+            if ("".equals(mSaveVideoPath)) {
+//                mSaveVideoPath = mCurrentVideoFilePath;
+                mSaveVideoPath = mRecordFile.toString();
+            } else {
+                mergeRecordVideoFile();
+            }
 
             mRecordState = CONSTANT_RECORD_STATE_PAUSE;
 
         }else if(mRecordState == CONSTANT_RECORD_STATE_PAUSE){
-            if (createRecordDir() == null){
+            if (!createRecordDir()){
                 return;
             }
             //视频保存路径
-            mCurrentVideoFilePath = createRecordDir() + createRecordFileName();
+//            mCurrentVideoFilePath = createRecordDir() + createRecordFileName();
+
             //继续录制视频
             if (!startRecordVideo()){
               return;
@@ -384,7 +382,7 @@ public class CustomCameraRecordVideoActivity extends Activity{
     /**
      * 开始录制视频
      */
-    private boolean startRecordVideo() {
+    public boolean startRecordVideo() {
        /* boolean isCreateOK = createRecordDir();
         if (!isCreateOK){
             return false;
@@ -453,8 +451,11 @@ public class CustomCameraRecordVideoActivity extends Activity{
         //13.设置录像的分辨率
         mMediaRecorder.setVideoSize(352,288);
         //14.设置输出文件
-//        mMediaRecorder.setOutputFile(mRecordFile.getAbsolutePath());
-        mMediaRecorder.setOutputFile(mCurrentVideoFilePath);
+        mMediaRecorder.setOutputFile(mRecordFile.getAbsolutePath());
+
+//        mMediaRecorder.setOutputFile(mCurrentVideoFilePath);
+//        Logger.i(mCurrentVideoFilePath); ///storage/sdcard1/DCIM/RecordVID_20180901_152215.mp4
+        Logger.i(mRecordFile.getAbsolutePath()); ///storage/sdcard1/DCIM/RecordVID_20180901_152215.mp4
 
     }
 
@@ -463,7 +464,7 @@ public class CustomCameraRecordVideoActivity extends Activity{
      * 结束录制视频
      */
     private void stopRecordVideo() {
-        if (isRecording && mMediaRecorder != null){
+        if (mMediaRecorder != null){
             //防止出现错误之后崩溃
             mMediaRecorder.setOnErrorListener(null);
             mMediaRecorder.setPreviewDisplay(null);
@@ -473,46 +474,56 @@ public class CustomCameraRecordVideoActivity extends Activity{
             //释放资源
             mMediaRecorder.release();
             mMediaRecorder = null;
-
-          /*  mChronometerRecordTime.stop();
-            //设置开始按钮可点击，停止按钮不可点击
-            mIVStart.setEnabled(true);
-            mIVPause.setEnabled(false);
-            isRecording = false;*/
         }
     }
 
-
-    private String createRecordDir() {
-
-        if (!Environment.MEDIA_MOUNTED.equals(
-                Environment.getExternalStorageState())){
-            Toast.makeText(this, "sd卡错误", Toast.LENGTH_SHORT).show();
-            return null;
+    /**
+     * 创建视频文件保存路径
+     */
+    private boolean createRecordDir() {
+        if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+            Toast.makeText(this, "请查看您的SD卡是否存在！", Toast.LENGTH_SHORT).show();
+            return false;
         }
-        /**
-         *保存的文件路径
-         */
-//        File recordFileDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),"Record");
-
-        File directory = Environment.getExternalStorageDirectory();
-        File file = new File(directory.toString() + "/RecordVideo/");
-        if (!file.exists()){
-            file.mkdir();
+        File sampleDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "Record");
+        if (!sampleDir.exists()) {
+            sampleDir.mkdirs();
         }
-
-        return directory.toString()+"/RecordVideo/";
-
+        String recordName = "VID_" + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".mp4";
+        mRecordFile = new File(sampleDir, recordName);
+        return true;
     }
 
-    private String createRecordFileName(){
-        /**
-         * 保存的文件名称
-         */
-        String recordFileName = "VID"+new SimpleDateFormat("yyyyMMdd_HHmmss")
-                .format(new Date())+".mp4";
-//        mRecordFile = new File(recordFileDir, recordFileName);
-        return recordFileName;
+
+    /**
+     * 合并视频录制的方法
+     */
+
+    private void mergeRecordVideoFile(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String[] str = new String[]{mSaveVideoPath,mRecordFile.toString()};
+                String saveFileName = createRecordDir() + "append.mp4";
+                //视频合并为append.mp4
+                try {
+                    VideoUtils.appendVideo(
+                            CustomCameraRecordVideoActivity.this,
+                            saveFileName,str);
+
+                    File saveFilePath = new File(mSaveVideoPath);
+                    File file = new File(saveFileName);
+                    //将合成的视频文件append.mp4文件移动到saveVideoPath路径下
+                    file.renameTo(saveFilePath);
+                    if (saveFilePath.exists()){
+                        file.delete();
+                        mRecordFile.delete();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
 
