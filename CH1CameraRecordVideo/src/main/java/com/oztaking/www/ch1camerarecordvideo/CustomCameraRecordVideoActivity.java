@@ -99,6 +99,7 @@ public class CustomCameraRecordVideoActivity extends Activity{
          * 配置surfaceView
          */
         SurfaceViewConfigure();
+        Logger.init("CustomCameraRecordVideoActivity");
 
     }
 
@@ -134,7 +135,6 @@ public class CustomCameraRecordVideoActivity extends Activity{
 
         @Override
         public void surfaceDestroyed(SurfaceHolder holder) {
-
 //            stopCamera();
             releaseCamera();
         }
@@ -229,12 +229,6 @@ public class CustomCameraRecordVideoActivity extends Activity{
 
             refreshControlUI();
             mRecordState = CONSTANT_RECORD_STATE_RECORDING;
-
-            /* if (!isRecording){
-                startRecordVideo();
-            }else{
-                stopRecordVideo();
-            }*/
         }else if (mRecordState == CONSTANT_RECORD_STATE_RECORDING){
             //停止录制视频
             stopRecordVideo();
@@ -242,12 +236,36 @@ public class CustomCameraRecordVideoActivity extends Activity{
             mCamera.lock();
             releaseCamera();
 
+            refreshControlUI();
+
+            mRecordState = CONSTANT_RECORD_STATE_INIT;
+            /**
+             * 跳转到播放页面,延时1s，如果有视频合成保证视频合成完成
+             */
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Intent intent = new Intent(
+                            CustomCameraRecordVideoActivity.this,
+                            PlayVideoActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("videoPath",mCurrentVideoFilePath);
+                    intent.putExtras(bundle);
+                    Logger.i("startActivity 前");
+                    startActivity(intent);
+                    Logger.i("startActivity 后");
+                    finish();
+                }
+            },1000);
+
             //ToDo 视频合并
         }else if (mRecordState == CONSTANT_RECORD_STATE_PAUSE){
-            Intent intent = new Intent(CustomCameraRecordVideoActivity.this, PlayVideoActivity.class);
-
+            //代表视频暂停录制时，点击中心按钮
+            Intent intent = new Intent(
+                    CustomCameraRecordVideoActivity.this,
+                    PlayVideoActivity.class);
             Bundle bundle = new Bundle();
-            bundle.putString("VideoPath", mCurrentVideoFilePath);
+            bundle.putString("videoPath", mCurrentVideoFilePath);
             intent.putExtras(bundle);
             startActivity(intent);
             finish();
@@ -339,6 +357,7 @@ public class CustomCameraRecordVideoActivity extends Activity{
             //录像的计时设置
             mChronometerRecordTime.setBase(SystemClock.elapsedRealtime());;
             mChronometerRecordTime.start();
+
             mIVStart.setImageResource(R.drawable.recordvideo_stop);
             //1s后停止录制按钮?????,防止多次按下录制暂停按钮
             mIVStart.setEnabled(false);
@@ -350,6 +369,7 @@ public class CustomCameraRecordVideoActivity extends Activity{
             },1000);
             mIVPause.setVisibility(View.VISIBLE);
             mIVPause.setEnabled(true);
+
         }else if(mRecordState == CONSTANT_RECORD_STATE_RECORDING){
             mPauseTime =0;
             mChronometerRecordTime.stop();
@@ -383,15 +403,6 @@ public class CustomCameraRecordVideoActivity extends Activity{
             return false;
         }
 
-        /*isRecording = true;
-        if (mRecordCurrentTime != 0){
-            mChronometerRecordTime.setBase(
-                    SystemClock.elapsedRealtime()-(mRecordCurrentTime - mChronometerRecordTime.getBase()));
-        }else{
-            mChronometerRecordTime.setBase(SystemClock.elapsedRealtime());
-        }
-
-        mChronometerRecordTime.start();*/
         return true;
 
     }
@@ -479,19 +490,18 @@ public class CustomCameraRecordVideoActivity extends Activity{
             Toast.makeText(this, "sd卡错误", Toast.LENGTH_SHORT).show();
             return null;
         }
-
         /**
          *保存的文件路径
          */
 //        File recordFileDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),"Record");
 
         File directory = Environment.getExternalStorageDirectory();
-        File file = new File(directory.toString() + "/Record/");
+        File file = new File(directory.toString() + "/RecordVideo/");
         if (!file.exists()){
             file.mkdir();
         }
 
-        return directory.toString()+"/Record/";
+        return directory.toString()+"/RecordVideo/";
 
     }
 

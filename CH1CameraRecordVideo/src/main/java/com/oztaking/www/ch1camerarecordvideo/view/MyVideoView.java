@@ -49,7 +49,7 @@ import java.io.IOException;
  * measurement from the video so that it can be used in any layout manager, and
  * provides various display options such as scaling and tinting.
  */
-public class CustomMediaPlayer extends SurfaceView implements mMediaController.MediaPlayerControl, View.OnTouchListener {
+public class MyVideoView extends SurfaceView implements mMediaController.MediaPlayerControl, View.OnTouchListener {
     private String TAG = "VideoView";
 
     private Context mContext;
@@ -123,21 +123,21 @@ public class CustomMediaPlayer extends SurfaceView implements mMediaController.M
         mMyChangeLinstener = l;
     }
 
-    public CustomMediaPlayer(Context context) {
+    public MyVideoView(Context context) {
         super(context);
         mContext = context;
         initVideoView();
         setOnTouchListener(this);
     }
 
-    public CustomMediaPlayer(Context context, AttributeSet attrs) {
+    public MyVideoView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
         mContext = context;
         initVideoView();
         setOnTouchListener(this);
     }
 
-    public CustomMediaPlayer(Context context, AttributeSet attrs, int defStyle) {
+    public MyVideoView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         mContext = context;
         initVideoView();

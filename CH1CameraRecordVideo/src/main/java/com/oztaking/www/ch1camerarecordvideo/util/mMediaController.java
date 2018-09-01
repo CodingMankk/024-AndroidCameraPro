@@ -1,3 +1,4 @@
+
 package com.oztaking.www.ch1camerarecordvideo.util;
 
 import android.annotation.SuppressLint;
@@ -106,10 +107,18 @@ public class mMediaController extends FrameLayout {
         Log.i(TAG, TAG);
     }
 
-    @Override
+    /*@Override
     public void onFinishInflate() {
         if (mRoot != null)
             initControllerView(mRoot);
+    }*/
+
+    @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+        if (mRoot != null)
+            initControllerView(mRoot);
+
     }
 
     public void setMediaPlayer(MediaPlayerControl player) {
